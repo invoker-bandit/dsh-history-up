@@ -69,29 +69,25 @@ English version: [README.en.md](README.en.md) · 技术实现：[TECHNICAL.md](T
 
 ## 安装
 
-包名：`@invoker-bandit/dsh-history-up`（[npm](https://www.npmjs.com/package/@invoker-bandit/dsh-history-up)）。
+当前目录就是一个完整、可直接安装的 bundle。
 
-### 方式一：从 npm 安装（推荐）
+### 从本地目录安装
 
-侧边栏 **Plugins** 面板 → 添加插件 → 在「包名或地址」里填：
+**先在插件目录里装一次依赖：**
 
+```bash
+npm install
 ```
-@invoker-bandit/dsh-history-up
-```
 
-装完后在列表里启用。若提示需要重启，请重启 Harness。
-
-### 方式二：从本地目录安装
-
-还没发布、或你想装自己的改动时，走这条路。侧边栏 **Plugins** 面板 → 添加插件 → 填本目录的**绝对路径**：
+然后侧边栏 **Plugins** 面板 → 添加插件 → 填本目录的**绝对路径**：
 
 ```
 /absolute/path/to/dsh-history-up
 ```
 
-> **用本地路径安装时，先在插件目录里跑一次 `npm install`。** `install_bundle` 只把目录以 `link:` 挂进 profile，**不会**安装它自己的 `dependencies`；缺这一步会报 `Cannot find package 'zod'`，控制台出现 `1 entry did not activate dsh-history-up`。
->
-> 从 npm 安装则不需要这步——依赖会随包一起正常解析。
+装完后在列表里启用。若提示需要重启，请重启 Harness。
+
+> **`npm install` 不能省。** 安装器只把目录以 `link:` 挂进 profile，**不会**安装它自己的 `dependencies`；Node 解析符号链接时走的是目录那一侧的解析链。缺这一步会报 `Cannot find package 'zod'`，控制台出现 `1 entry did not activate dsh-history-up`。
 >
 > 单测全绿不能证明这一条：测试用的是 `test/setup.mjs` 里的替身依赖。
 

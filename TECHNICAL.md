@@ -139,17 +139,25 @@ maxEntries: { get: [Function], Symbol(cosmokit.volatile.write): [Function] }
 
 > 这三个坑都是"静默失败"：没有异常、没有警告，只有控件变灰或设置不生效。改这块前先跑那三条回归测试。
 
-## 依赖：本地路径安装要自己装，npm 安装不用
+## 依赖：本地路径安装要自己装
 
-从 **npm** 安装时依赖随包正常解析，无需任何额外操作。
+> **当前尚未发布到 npm**，只能按本地路径安装，所以下面这段是安装的必要步骤，不是可选项。
 
 从**本地路径**安装时必须先在插件目录跑 `npm install`。安装器只把目录以 `link:` 挂进 profile，**不会**安装它自己的 `dependencies`；Node 解析符号链接的真实路径，于是从 `index.js` 出发的解析链走的是 workspace 那一侧——profile 的 `node_modules` 里没有本插件的依赖。缺这一步时 Host 导入入口抛 `Cannot find package 'zod'`，控制台报 `1 entry did not activate dsh-history-up`。
 
 两个真实依赖：`zod`（投影 schema）与 `@deepseek-ai/schemastery`（`Config`）。
 
-## 发布到 npm
+## 发布到 npm（尚未发布）
 
-`files` 白名单里**必须**有 `cordis.patch.yml`——`dsh.bundle.patch` 指向它，漏掉的话发出去的包根本不是 bundle，安装器会以"没有声明组合包"拒收。npm 只自动附带 `README*`、`LICENSE`、`package.json`，所以 `TECHNICAL*.md` 也要显式列出。
+包已按可发布状态备好（`files`、`license`、`repository` 等齐备，tarball 已实测可安装），只差账号认证——npm 的反滥用按 IP 拦截了 `www.npmjs.com`，而 `registry.npmjs.org` 的 API 本身是通的。换网络后执行：
+
+```bash
+npm config set @invoker-bandit:registry https://registry.npmjs.org
+npm login --registry=https://registry.npmjs.org
+npm publish --access public
+```
+
+发布时最容易踩的一条：`files` 白名单里**必须**有 `cordis.patch.yml`——`dsh.bundle.patch` 指向它，漏掉的话发出去的包根本不是 bundle，安装器会以"没有声明组合包"拒收。npm 只自动附带 `README*`、`LICENSE`、`package.json`，所以 `TECHNICAL*.md` 也要显式列出。
 
 包名一旦发布就永久占用，不能改名或删除后复用。
 

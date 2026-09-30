@@ -214,8 +214,8 @@ is **silently** pinned at the default so the user's setting does nothing.
 
 ## Dependencies: your own job for a path install, npm's for a registry install
 
-Installing **from npm** resolves dependencies normally with the package and
-needs nothing extra.
+> **Not yet published to npm**, so a local-path install is the only route and
+> the step below is required, not optional.
 
 Installing **from a local path** requires `npm install` in this directory
 first. The installer only links the directory into the profile with `link:` and
@@ -228,9 +228,21 @@ import throws `Cannot find package 'zod'` and the console reports
 Two real dependencies: `zod` (the projection schemas) and
 `@deepseek-ai/schemastery` (`Config`).
 
-## Publishing to npm
+## Publishing to npm (not yet published)
 
-`cordis.patch.yml` **must** be in the `files` allowlist — `dsh.bundle.patch`
+The package is already release-ready (`files`, `license`, `repository` in
+place; the tarball verified as an installable bundle). Only account
+authentication is missing — npm's anti-abuse blocked `www.npmjs.com` by IP,
+while the `registry.npmjs.org` API itself responds. On a different network:
+
+```bash
+npm config set @invoker-bandit:registry https://registry.npmjs.org
+npm login --registry=https://registry.npmjs.org
+npm publish --access public
+```
+
+The easiest thing to get wrong when publishing: `cordis.patch.yml` **must** be
+in the `files` allowlist — `dsh.bundle.patch`
 points at it, and without it the published package is not a bundle at all and
 the installer rejects it with "declares no bundle". npm auto-includes only
 `README*`, `LICENSE` and `package.json`, so `TECHNICAL*.md` has to be listed

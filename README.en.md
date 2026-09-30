@@ -88,36 +88,30 @@ shows English.
 
 ## Install
 
-Package: `@invoker-bandit/dsh-history-up` ([npm](https://www.npmjs.com/package/@invoker-bandit/dsh-history-up)).
+This directory is a complete, ready-to-install bundle.
 
-### Route 1 — from npm (recommended)
+### From a local directory
 
-In the sidebar **Plugins** panel, choose add, and put this in the package-name
-field:
+**Install its dependencies first:**
 
+```bash
+npm install
 ```
-@invoker-bandit/dsh-history-up
-```
 
-Then enable it in the list. If it reports a restart, restart Harness.
-
-### Route 2 — from a local directory
-
-For an unpublished copy, or to install your own changes. In the sidebar
-**Plugins** panel, add, and paste the **absolute** path of this directory:
+Then in the sidebar **Plugins** panel, choose add, and paste the **absolute**
+path of this directory:
 
 ```
 /absolute/path/to/dsh-history-up
 ```
 
-> **When installing from a local path, run `npm install` in the plugin directory
-> first.** The installer only links the directory into the profile with `link:`
-> and never installs its `dependencies`; without this step you get
+Then enable it in the list. If it reports a restart, restart Harness.
+
+> **`npm install` is not optional.** The installer only links the directory into
+> the profile with `link:` and never installs its `dependencies`, and Node
+> resolves the symlink from the directory's side of the link. Without it you get
 > `Cannot find package 'zod'` and
 > `1 entry did not activate dsh-history-up` on the console.
->
-> Installing from npm needs no such step — the dependencies resolve normally
-> with the package.
 >
 > Green unit tests do not rule this out: the tests use stand-ins from
 > `test/setup.mjs`.
@@ -135,8 +129,8 @@ For an unpublished copy, or to install your own changes. In the sidebar
 ## Troubleshooting
 
 **The console reports `1 entry did not activate dsh-history-up`.**
-A local-path install skipped `npm install`, so `node_modules` is missing. Run
-it in the plugin directory, then restart Harness.
+`node_modules` is missing — the `npm install` step was skipped. Run it in the
+plugin directory, then restart Harness.
 
 **「历史输入」is missing from the menu, or has no glyph.**
 The client code did not reload. Refresh the page; if it persists, remove it from
