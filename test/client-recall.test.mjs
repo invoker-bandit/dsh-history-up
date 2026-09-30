@@ -479,7 +479,7 @@ function mountConfig(plugin, { view = 'page', value = 200, status = 'ready', wri
 test('registers a plugins.row.config entry keyed by package and row id', () => {
   const plugin = boot()
   assert.equal(plugin.configSpec.name, 'plugins.row.config')
-  assert.equal(plugin.configSpec.key, '@local/dsh-history-up#dsh-history-up')
+  assert.equal(plugin.configSpec.key, '@invoker-bandit/dsh-history-up#dsh-history-up')
 })
 
 test('the config form shows the cap the Host resolves', () => {

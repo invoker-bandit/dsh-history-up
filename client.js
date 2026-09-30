@@ -1,5 +1,5 @@
 /**
- * Client half of `@local/dsh-history-up`.
+ * Client half of `@invoker-bandit/dsh-history-up`.
  *
  * The Host half records the prompts a session received. This half reads that
  * served projection and writes the composer draft: Up walks back through the
@@ -30,7 +30,7 @@
  * only a `sessionId`, so the dock entry is what owns both halves.
  */
 window.__ModuleLoader__.load({
-  id: '@local/dsh-history-up',
+  id: '@invoker-bandit/dsh-history-up',
   factory(require) {
     const React = require('react');
     const { useEffect, useRef, useState, createElement: h } = React;
@@ -41,7 +41,7 @@ window.__ModuleLoader__.load({
      * this exact key is what gives the row its **Configure** control — the page
      * holds no registry of configurable rows of its own.
      */
-    const CONFIG_KEY = '@local/dsh-history-up#dsh-history-up';
+    const CONFIG_KEY = '@invoker-bandit/dsh-history-up#dsh-history-up';
 
     /** The `/history` contribution's name; must not collide with a host command. */
     const COMMAND_NAME = 'history';

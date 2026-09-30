@@ -2,6 +2,6 @@
 # The Client half needs no row: `dsh.client` in package.json mounts it on its own.
 - insert:
     - id: dsh-history-up
-      name: '@local/dsh-history-up'
+      name: '@invoker-bandit/dsh-history-up'
       config:
         maxEntries: 200

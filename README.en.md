@@ -71,7 +71,7 @@ You can also edit `cordis.patch.yml` directly:
 ```yaml
 - insert:
     - id: dsh-history-up
-      name: '@local/dsh-history-up'
+      name: '@invoker-bandit/dsh-history-up'
       config:
         maxEntries: 200
 ```
@@ -88,58 +88,46 @@ shows English.
 
 ## Install
 
-This directory is a complete, ready-to-install bundle.
+Package: `@invoker-bandit/dsh-history-up` ([npm](https://www.npmjs.com/package/@invoker-bandit/dsh-history-up)).
 
-### Step 0 — install dependencies (required)
+### Route 1 — from npm (recommended)
 
-```bash
-npm install
+In the sidebar **Plugins** panel, choose add, and put this in the package-name
+field:
+
+```
+@invoker-bandit/dsh-history-up
 ```
 
-**Do this before installing the plugin.** It only writes `node_modules` inside
-this directory; it touches none of your configuration.
+Then enable it in the list. If it reports a restart, restart Harness.
 
-### Route 1 — the Web UI (recommended)
+### Route 2 — from a local directory
 
-In the sidebar **Plugins** panel, install and paste the **absolute** path of
-this bundle's directory:
+For an unpublished copy, or to install your own changes. In the sidebar
+**Plugins** panel, add, and paste the **absolute** path of this directory:
 
 ```
 /absolute/path/to/dsh-history-up
 ```
 
-Then enable it in the list. If it reports a restart, restart Harness.
+> **When installing from a local path, run `npm install` in the plugin directory
+> first.** The installer only links the directory into the profile with `link:`
+> and never installs its `dependencies`; without this step you get
+> `Cannot find package 'zod'` and
+> `1 entry did not activate dsh-history-up` on the console.
+>
+> Installing from npm needs no such step — the dependencies resolve normally
+> with the package.
+>
+> Green unit tests do not rule this out: the tests use stand-ins from
+> `test/setup.mjs`.
 
-### Route 2 — a session that has the `plugin_manager` tool
-
-```
-plugin_manager  action: install_bundle  target: /absolute/path/to/dsh-history-up
-```
-
-Read the result's `application` field: only `applied` means the change is live.
-
-### Route 3 — the CLI (unavailable for the desktop profile)
-
-```
-dsh plugin --profile desktop add <path>
-```
-
-**This route does not work.** The `desktop` profile is managed exclusively by
-the Electron application, and the CLI refuses it outright:
-
-```
-error: profile "desktop" is managed exclusively by the Electron application
-```
-
-A profile can only be modified by the running Harness, so use Route 1 or 2.
-
-### Notes
+### Other notes
 
 - Do not hand-edit the profile's `package.json` or `cordis.patch.yml`, do not
   create packages under `$DSH_HOME`, and do not run `pnpm` in the profile
-  directory; `install_bundle` performs those steps.
-- To uninstall, remove it from the panel, or use `plugin_manager` with
-  `action: remove_bundle`.
+  directory; the installer performs those steps.
+- To uninstall, remove it from the panel.
 - The bundle declares no `dsh.peers`, so installation skips the DSH version
   compatibility pre-check. The cost is no compatibility warning after a DSH
   upgrade.
@@ -147,14 +135,12 @@ A profile can only be modified by the running Harness, so use Route 1 or 2.
 ## Troubleshooting
 
 **The console reports `1 entry did not activate dsh-history-up`.**
-This directory's `node_modules` is missing — usually Step 0 was skipped. Run
-`npm install`, then restart Harness.
-> Green unit tests do not rule this out: the tests use stand-ins from
-> `test/setup.mjs`.
+A local-path install skipped `npm install`, so `node_modules` is missing. Run
+it in the plugin directory, then restart Harness.
 
 **「历史输入」is missing from the menu, or has no glyph.**
-The client code did not reload. Refresh the page; if it persists, install again
-via Route 1 and restart Harness.
+The client code did not reload. Refresh the page; if it persists, remove it from
+the panel, install again, and restart Harness.
 
 **`maxEntries` was changed but nothing happened.**
 A restart is required — replacing an installed package needs a fresh JavaScript

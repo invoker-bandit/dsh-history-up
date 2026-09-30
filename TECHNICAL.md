@@ -107,7 +107,7 @@ has: (row) => ledger.rows.has(rowConfigKey(pkg.name, row.rowId))
 
 所以表单是本插件自己画的（`MaxEntriesConfig`）：
 
-- key 必须是 `@local/dsh-history-up#dsh-history-up`，行 id 就是 `cordis.patch.yml` 里那个 `id`。
+- key 必须是 `@invoker-bandit/dsh-history-up#dsh-history-up`，行 id 就是 `cordis.patch.yml` 里那个 `id`。
 - 页面把 `form`（`ConfigPageForm`）作为 prop 传进来。`form` **可能整个是 `undefined`**——宿主只有在设置镜像把这一行列为已暴露命名空间时才传。表单对这种情况降级提示"值只能在 `cordis.patch.yml` 里改"，而不是抛异常。
 - 读用 `form.state`，存用 `form.mutate(ops, revision)`，并带上读到的 `revision` 做并发栅栏。
 - 样式只用主题 token，不 import 任何包。
@@ -139,13 +139,21 @@ maxEntries: { get: [Function], Symbol(cosmokit.volatile.write): [Function] }
 
 > 这三个坑都是"静默失败"：没有异常、没有警告，只有控件变灰或设置不生效。改这块前先跑那三条回归测试。
 
-## 依赖必须自己装
+## 依赖：本地路径安装要自己装，npm 安装不用
 
-`install_bundle` 只把 bundle 以 `link:` 挂进 profile，**不会**安装 bundle 自己的 `dependencies`。Node 解析符号链接的真实路径，于是从 `index.js` 出发的解析链走的是 workspace 那一侧——profile 的 `node_modules` 里没有本插件的依赖。
+从 **npm** 安装时依赖随包正常解析，无需任何额外操作。
 
-缺 `npm install` 时，Host 导入入口抛 `Cannot find package 'zod'`，控制台报 `1 entry did not activate dsh-history-up`。
+从**本地路径**安装时必须先在插件目录跑 `npm install`。安装器只把目录以 `link:` 挂进 profile，**不会**安装它自己的 `dependencies`；Node 解析符号链接的真实路径，于是从 `index.js` 出发的解析链走的是 workspace 那一侧——profile 的 `node_modules` 里没有本插件的依赖。缺这一步时 Host 导入入口抛 `Cannot find package 'zod'`，控制台报 `1 entry did not activate dsh-history-up`。
 
 两个真实依赖：`zod`（投影 schema）与 `@deepseek-ai/schemastery`（`Config`）。
+
+## 发布到 npm
+
+`files` 白名单里**必须**有 `cordis.patch.yml`——`dsh.bundle.patch` 指向它，漏掉的话发出去的包根本不是 bundle，安装器会以"没有声明组合包"拒收。npm 只自动附带 `README*`、`LICENSE`、`package.json`，所以 `TECHNICAL*.md` 也要显式列出。
+
+包名一旦发布就永久占用，不能改名或删除后复用。
+
+改包名时要同步改三处：`package.json` 的 `name`、`cordis.patch.yml` 里那一行的 `name`、以及 `client.js` 中注册 slot 用的 key（`<包名>#<行 id>`）——`configure.has(row)` 靠这个字符串匹配，改漏了配置入口会静默消失。
 
 ## locale 必须嵌在 `meta` 下
 
@@ -182,7 +190,7 @@ node test/run.mjs
 - `test/host-fold.test.mjs`：合成 Session 事件驱动折叠（记录、注入上下文、surface 替换、条数上限、引用稳定性、畸形输入），覆盖 `Config`（默认值、范围拒绝、配置值传到折叠、volatile 标记、宿主 volatile 折叠存活、原生 schema 识别、cell 解包），外加"不得注册 host 命令"。
 - `test/client-recall.test.mjs`：用极小的 hook 框架和假元素树运行**真实的 `client.js`**，覆盖回溯走位、前缀过滤、首行规则、修饰键/长按/输入法组字/弹窗防护、会话路由、卸载清理，`/history` 的两级 source（图标、drill、面包屑、倒序、20 条上限、截断与副标题、空会话、取消信号、选中写入、未知值拒绝），以及配置表单（读宿主值、保存带 revision 栅栏、越界不可存、`form` 缺失/只读时降级、summary 视图）。
 
-> 测试替身赶不上真实包时，**拿真实包验证**。本项目里"提交成功但行为不对"的两次根因，都是靠 `cd $DSH_PROFILE_DIR && node -e "import('@local/dsh-history-up')"` 才定性的。
+> 测试替身赶不上真实包时，**拿真实包验证**。本项目里"提交成功但行为不对"的两次根因，都是靠 `cd $DSH_PROFILE_DIR && node -e "import('@invoker-bandit/dsh-history-up')"` 才定性的。
 
 ## 验证状态
 

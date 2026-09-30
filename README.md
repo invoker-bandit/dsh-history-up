@@ -56,7 +56,7 @@ English version: [README.en.md](README.en.md) · 技术实现：[TECHNICAL.md](T
 ```yaml
 - insert:
     - id: dsh-history-up
-      name: '@local/dsh-history-up'
+      name: '@invoker-bandit/dsh-history-up'
       config:
         maxEntries: 200
 ```
@@ -69,62 +69,45 @@ English version: [README.en.md](README.en.md) · 技术实现：[TECHNICAL.md](T
 
 ## 安装
 
-当前目录就是一个完整、可直接安装的 bundle。
+包名：`@invoker-bandit/dsh-history-up`（[npm](https://www.npmjs.com/package/@invoker-bandit/dsh-history-up)）。
 
-### 第 0 步：装依赖（必做）
+### 方式一：从 npm 安装（推荐）
 
-```bash
-npm install
+侧边栏 **Plugins** 面板 → 添加插件 → 在「包名或地址」里填：
+
+```
+@invoker-bandit/dsh-history-up
 ```
 
-**在安装插件之前做。** 装依赖只往本目录写 `node_modules`，不会碰你的配置。
+装完后在列表里启用。若提示需要重启，请重启 Harness。
 
-### 方式一：Web 界面（推荐）
+### 方式二：从本地目录安装
 
-侧边栏 **Plugins** 面板 → 安装，粘贴本 bundle 目录的**绝对路径**：
+还没发布、或你想装自己的改动时，走这条路。侧边栏 **Plugins** 面板 → 添加插件 → 填本目录的**绝对路径**：
 
 ```
 /absolute/path/to/dsh-history-up
 ```
 
-装完后在列表里启用。若提示需要重启，请重启 Harness。
+> **用本地路径安装时，先在插件目录里跑一次 `npm install`。** `install_bundle` 只把目录以 `link:` 挂进 profile，**不会**安装它自己的 `dependencies`；缺这一步会报 `Cannot find package 'zod'`，控制台出现 `1 entry did not activate dsh-history-up`。
+>
+> 从 npm 安装则不需要这步——依赖会随包一起正常解析。
+>
+> 单测全绿不能证明这一条：测试用的是 `test/setup.mjs` 里的替身依赖。
 
-### 方式二：让具备 `plugin_manager` 工具的会话代劳
+### 其它说明
 
-```
-plugin_manager  action: install_bundle  target: /absolute/path/to/dsh-history-up
-```
-
-以返回结果的 `application` 字段为准：**只有 `applied` 才算生效**。
-
-### 方式三：CLI（对 desktop profile 不可用）
-
-```
-dsh plugin --profile desktop add <路径>
-```
-
-**这条路走不通。** `desktop` profile 由 Electron 应用独占管理，CLI 会直接拒绝：
-
-```
-error: profile "desktop" is managed exclusively by the Electron application
-```
-
-profile 只能由运行中的 Harness 修改，所以请用方式一或二。
-
-### 注意事项
-
-- **不要手工编辑 profile 的 `package.json` 或 `cordis.patch.yml`**，不要在 `$DSH_HOME` 下建包，也不要在 profile 目录里跑 `pnpm`——`install_bundle` 会完成这些步骤。
-- 卸载：在界面中移除，或用 `plugin_manager` 的 `action: remove_bundle`。
+- **不要手工编辑 profile 的 `package.json` 或 `cordis.patch.yml`**，不要在 `$DSH_HOME` 下建包，也不要在 profile 目录里跑 `pnpm`——安装流程会完成这些步骤。
+- 卸载：在界面中移除即可。
 - 本插件没有声明 `dsh.peers`，安装时因此跳过 DSH 版本兼容性预检。代价是升级 DSH 后不会收到兼容性预警。
 
 ## 故障排查
 
 **控制台报 `1 entry did not activate dsh-history-up`。**
-本目录的 `node_modules` 缺失——多半是跳过了第 0 步。`npm install` 后重启 Harness。
-> 单测全绿不能证明这一条：测试用的是 `test/setup.mjs` 里的替身依赖。
+本地路径安装时漏了 `npm install`，`node_modules` 缺失。在插件目录里补一次再重启 Harness。
 
 **菜单里没有「历史输入」，或没有图标。**
-客户端代码没重新加载。刷新页面；仍然是就用方式一重装一次，再重启 Harness。
+客户端代码没重新加载。刷新页面；仍然不行就在面板里移除后重装一次，再重启 Harness。
 
 **改了 `maxEntries` 但没生效。**
 需要重启 Harness。替换已安装的包要新的 JavaScript 模块代次。

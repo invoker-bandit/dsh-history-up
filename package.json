@@ -1,8 +1,25 @@
 {
-  "name": "@local/dsh-history-up",
+  "name": "@invoker-bandit/dsh-history-up",
   "version": "1.0.0",
-  "private": true,
-  "description": "记录每个会话中提交过的提示词，可用上方向键逐条回溯，或用 /history 命令列出。",
+  "description": "记录每个会话中提交过的提示词，可用上方向键逐条回溯，或用 /history 菜单挑一条填入输入框。",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "prompt-history",
+    "history"
+  ],
+  "homepage": "https://github.com/invoker-bandit/dsh-history-up#readme",
+  "bugs": {
+    "url": "https://github.com/invoker-bandit/dsh-history-up/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/invoker-bandit/dsh-history-up.git"
+  },
+  "license": "MIT",
+  "author": "invoker-bandit",
   "type": "module",
   "icon": "./icon.svg",
   "exports": {
@@ -14,8 +31,11 @@
   "files": [
     "index.js",
     "client.js",
+    "cordis.patch.yml",
     "icon.svg",
-    "locale/*.json"
+    "locale/*.json",
+    "TECHNICAL.md",
+    "TECHNICAL.en.md"
   ],
   "dependencies": {
     "zod": "^4.6.5",

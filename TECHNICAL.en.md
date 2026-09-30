@@ -167,7 +167,7 @@ either.
 
 So this plugin draws its own (`MaxEntriesConfig`):
 
-- The key must be `@local/dsh-history-up#dsh-history-up`; the row id is the
+- The key must be `@invoker-bandit/dsh-history-up#dsh-history-up`; the row id is the
   `id` in `cordis.patch.yml`.
 - The page hands the entry a `form` (`ConfigPageForm`) prop. `form` may be
   entirely `undefined` — the Host only supplies it once the settings mirror
@@ -212,19 +212,37 @@ is **silently** pinned at the default so the user's setting does nothing.
 > All three traps fail silently: no exception, no warning — just a dead control
 > or an ignored setting. Run those three regression tests before touching this.
 
-## Dependencies must be installed here
+## Dependencies: your own job for a path install, npm's for a registry install
 
-`install_bundle` only links the bundle into the profile; it never installs the
-bundle's own `dependencies`. Node resolves the symlink's real path, so
+Installing **from npm** resolves dependencies normally with the package and
+needs nothing extra.
+
+Installing **from a local path** requires `npm install` in this directory
+first. The installer only links the directory into the profile with `link:` and
+never installs its `dependencies`; Node resolves the symlink's real path, so
 resolution walks the workspace side of the link — and the profile's
-`node_modules` holds no dependency of this bundle.
-
-Without `npm install`, the Host's import of the entry throws
-`Cannot find package 'zod'` and the console reports
+`node_modules` holds no dependency of this bundle. Without that step the Host's
+import throws `Cannot find package 'zod'` and the console reports
 `1 entry did not activate dsh-history-up`.
 
 Two real dependencies: `zod` (the projection schemas) and
 `@deepseek-ai/schemastery` (`Config`).
+
+## Publishing to npm
+
+`cordis.patch.yml` **must** be in the `files` allowlist — `dsh.bundle.patch`
+points at it, and without it the published package is not a bundle at all and
+the installer rejects it with "declares no bundle". npm auto-includes only
+`README*`, `LICENSE` and `package.json`, so `TECHNICAL*.md` has to be listed
+explicitly too.
+
+An npm package name is permanently taken once published; it cannot be renamed
+or reused after deletion.
+
+Renaming the package means changing three places: `name` in `package.json`, the
+row's `name` in `cordis.patch.yml`, and the slot key used in `client.js`
+(`<package name>#<row id>`) — `configure.has(row)` matches on that string, so
+missing it makes the configure entry vanish silently.
 
 ## locale must nest under `meta`
 
@@ -286,7 +304,7 @@ found *only* because the stand-in was faithful. An earlier version had neither
 > When a test stand-in drifts from the real package, **verify against the real
 > package**. Both times a change landed successfully yet behaved wrongly here,
 > the root cause was pinned by
-> `cd $DSH_PROFILE_DIR && node -e "import('@local/dsh-history-up')"`.
+> `cd $DSH_PROFILE_DIR && node -e "import('@invoker-bandit/dsh-history-up')"`.
 
 ## Verification status
 

@@ -1,5 +1,5 @@
 /**
- * Host half of `@local/dsh-history-up`.
+ * Host half of `@invoker-bandit/dsh-history-up`.
  *
  * Owns one session projection, `inputHistory`, that folds the committed Session
  * log into the ordered list of prompts the user actually submitted in that
