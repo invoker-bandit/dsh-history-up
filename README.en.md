@@ -1,0 +1,181 @@
+# dsh-history-up
+
+[中文](README.md) · Technical notes: [TECHNICAL.en.md](TECHNICAL.en.md)
+
+A DeepSeek Harness plugin that records the prompts you submit in each session
+and recalls them with the <kbd>↑</kbd> arrow key — or picks one from the
+<kbd>/</kbd> menu straight into the composer. Shell-style input history, per
+session.
+
+## What it does
+
+- **Records** every prompt you submit in a session. Injected context (`goal`,
+  `schedule`, subagent messages, tool notifications, …) is not recorded.
+- **Recalls** with <kbd>↑</kbd> / <kbd>↓</kbd> in the composer:
+  - <kbd>↑</kbd> walks backwards through the session's prompts, most recent first.
+  - <kbd>↓</kbd> walks forwards; walking past the newest entry restores the text
+    you had typed before you started browsing.
+  - Typing a partial line first narrows the list to prompts starting with it,
+    the way `fish` does.
+- **Picks from a menu.** Type <kbd>/</kbd>, choose **历史输入**, and a second
+  level lists this session's prompts; picking one fills the composer.
+- **Is per session.** Opening a different session gives you that session's
+  history.
+
+## Usage
+
+### Recalling with the arrow keys
+
+Clear the composer and press <kbd>↑</kbd> repeatedly to walk back through your
+prompts. Pressing <kbd>↑</kbd> at the oldest entry does not move the caret.
+<kbd>↓</kbd> walks forward, and past the newest entry it restores what you had
+typed.
+
+### Picking from the menu
+
+1. Press <kbd>/</kbd>. A **历史输入** group appears, with a glyph.
+2. Pick that row — by click or Enter — to open the **second level**: this
+   session's prompts, **newest first**. A **历史输入** breadcrumb appears above
+   the list; click it to go back.
+3. Pick a row and it goes straight into the composer, ready to send.
+
+The second level shows at most 20 rows. Each shows its first line (elided past
+72 characters); the remaining lines appear as the row's detail.
+
+### Behaviour details worth knowing
+
+| Situation | Result |
+|---|---|
+| Caret on the first line | <kbd>↑</kbd> recalls history |
+| Caret on a later line | <kbd>↑</kbd> moves the caret, as in a shell |
+| Slash-command claim open (`/…`) | Arrows belong to the trigger menu |
+| Any modifier, or key held down | The editor's own behaviour is untouched |
+| Draft you started browsing, then edited | The walk restarts, filtered by what you now have typed |
+| A prompt sent as only an image/file | Not recorded — no plain text to recall |
+| A prompt that failed to send | Not recorded; the draft is restored instead, so re-sending records it |
+| A forked session | Shows the prompts the fork's log actually contains, which includes the parent's up to the fork point |
+
+## Configuration
+
+Editable from the plugin's detail page: sidebar **Plugins** → open this bundle
+→ click the `dsh-history-up` row.
+
+| Setting | Type | Default | Range | Meaning |
+|---|---|---|---|---|
+| `maxEntries` | integer | `200` | 1–5000 | prompts retained per session; older ones fall off the front |
+
+Press save. **A restart of Harness is required for it to take effect.**
+
+You can also edit `cordis.patch.yml` directly:
+
+```yaml
+- insert:
+    - id: dsh-history-up
+      name: '@local/dsh-history-up'
+      config:
+        maxEntries: 200
+```
+
+> This plugin draws that form itself. Three constraints govern it (the
+> `plugins.row.config` slot, `.volatile()`, and cell reads) — read
+> [TECHNICAL.en.md](TECHNICAL.en.md#the-three-traps-in-the-config-form)
+> before changing the code.
+
+## Interface language
+
+The panel's title and description are Chinese by default; an English interface
+shows English.
+
+## Install
+
+This directory is a complete, ready-to-install bundle.
+
+### Step 0 — install dependencies (required)
+
+```bash
+npm install
+```
+
+**Do this before installing the plugin.** It only writes `node_modules` inside
+this directory; it touches none of your configuration.
+
+### Route 1 — the Web UI (recommended)
+
+In the sidebar **Plugins** panel, install and paste the **absolute** path of
+this bundle's directory:
+
+```
+/absolute/path/to/dsh-history-up
+```
+
+Then enable it in the list. If it reports a restart, restart Harness.
+
+### Route 2 — a session that has the `plugin_manager` tool
+
+```
+plugin_manager  action: install_bundle  target: /absolute/path/to/dsh-history-up
+```
+
+Read the result's `application` field: only `applied` means the change is live.
+
+### Route 3 — the CLI (unavailable for the desktop profile)
+
+```
+dsh plugin --profile desktop add <path>
+```
+
+**This route does not work.** The `desktop` profile is managed exclusively by
+the Electron application, and the CLI refuses it outright:
+
+```
+error: profile "desktop" is managed exclusively by the Electron application
+```
+
+A profile can only be modified by the running Harness, so use Route 1 or 2.
+
+### Notes
+
+- Do not hand-edit the profile's `package.json` or `cordis.patch.yml`, do not
+  create packages under `$DSH_HOME`, and do not run `pnpm` in the profile
+  directory; `install_bundle` performs those steps.
+- To uninstall, remove it from the panel, or use `plugin_manager` with
+  `action: remove_bundle`.
+- The bundle declares no `dsh.peers`, so installation skips the DSH version
+  compatibility pre-check. The cost is no compatibility warning after a DSH
+  upgrade.
+
+## Troubleshooting
+
+**The console reports `1 entry did not activate dsh-history-up`.**
+This directory's `node_modules` is missing — usually Step 0 was skipped. Run
+`npm install`, then restart Harness.
+> Green unit tests do not rule this out: the tests use stand-ins from
+> `test/setup.mjs`.
+
+**「历史输入」is missing from the menu, or has no glyph.**
+The client code did not reload. Refresh the page; if it persists, install again
+via Route 1 and restart Harness.
+
+**`maxEntries` was changed but nothing happened.**
+A restart is required — replacing an installed package needs a fresh JavaScript
+module generation.
+
+**The configuration input is greyed out and cannot be edited.**
+The Host is not exposing this row's configuration to the page, so the value can
+only be changed in `cordis.patch.yml` for now. See
+[TECHNICAL.en.md](TECHNICAL.en.md#the-three-traps-in-the-config-form).
+
+## Development
+
+```bash
+node test/run.mjs
+```
+
+54 unit tests, no browser required. Coverage and the stand-in notes are in
+[TECHNICAL.en.md](TECHNICAL.en.md#tests).
+
+## Possible next steps
+
+- Register a fixed shortcut with `ctx.shortcuts.registerFixed({ code: 'ArrowUp' })`
+  so the binding appears in the shortcut reference panel.
+- Show the current position during a walk (e.g. `3 / 12`) in the dock.

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "History Up",
+    "description": "Records the prompts you submit in each session; recall them with the Up arrow or list them with /history."
+  }
+}

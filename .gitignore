@@ -1,0 +1,9 @@
+# Installed by `npm install`; `package-lock.json` is what pins the tree.
+node_modules/
+
+# Scratch dirs the test runner creates and removes.
+test/.build/
+.npm-cache/
+
+# macOS
+.DS_Store

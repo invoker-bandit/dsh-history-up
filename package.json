@@ -1,0 +1,32 @@
+{
+  "name": "@local/dsh-history-up",
+  "version": "1.0.0",
+  "private": true,
+  "description": "记录每个会话中提交过的提示词，可用上方向键逐条回溯，或用 /history 命令列出。",
+  "type": "module",
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "icon.svg",
+    "locale/*.json"
+  ],
+  "dependencies": {
+    "zod": "^4.6.5",
+    "@deepseek-ai/schemastery": "~3.18.4"
+  },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": ["@deepseek-ai/dsh-client-ui-conversation"]
+    }
+  }
+}
