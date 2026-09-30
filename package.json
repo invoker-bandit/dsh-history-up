@@ -18,7 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/invoker-bandit/dsh-history-up.git"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "invoker-bandit",
   "type": "module",
   "icon": "./icon.svg",
@@ -42,11 +42,15 @@
     "@deepseek-ai/schemastery": "~3.18.4"
   },
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "immediately": true,
-      "inject": ["@deepseek-ai/dsh-client-ui-conversation"]
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
     }
   }
 }
